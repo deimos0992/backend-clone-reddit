@@ -1,6 +1,7 @@
 package com.reddclone.demo.service;
 
 import com.reddclone.demo.dto.RegistrerRequest;
+import com.reddclone.demo.exceptions.SpringRedditException;
 import com.reddclone.demo.model.NotificationEmail;
 import com.reddclone.demo.model.User;
 import com.reddclone.demo.model.VerificationToken;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -24,6 +26,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
+
 
     @Transactional
     public void signup(RegistrerRequest registrerRequest){
@@ -54,5 +57,19 @@ public class AuthService {
         verificationTokenRepository.save(verificationToken);
 
         return token;
+    }
+
+    public void verifyAccount(String token) {
+        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
+        verificationToken.orElseThrow(()-> new SpringRedditException("Invaid Token"));
+        fetchUserAndEnable(verificationToken.get());
+    }
+
+    @Transactional
+    private void fetchUserAndEnable(VerificationToken verificationToken) {
+        String username = verificationToken.getUser().getUsername();
+        User user = userRepository.findByUsername(username).orElseThrow(()-> new SpringRedditException("username not found"));
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 }
