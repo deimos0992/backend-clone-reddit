@@ -1,3 +1,4 @@
+### DB Properties ###
 spring:
   datasource:
     driver-class-name: "com.mysql.cj.jdbc.Driver"
@@ -12,4 +13,12 @@ spring:
       ddl-auto: "update"
     show-sql: true
   inizialize: true
+
+### Mail Properties ###
+  mail:
+    host: "smtp.mailtrap.io"
+    port: 25
+    username: "125ee385895591"
+    password: "ef9c8f447b42a7"
+    protocol: "smtp"
 
