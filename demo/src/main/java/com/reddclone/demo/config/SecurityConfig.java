@@ -3,6 +3,7 @@ package com.reddclone.demo.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,27 +14,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable()
+
+        httpSecurity
+                .csrf()
+                .disable()
                 .authorizeRequests()
                 .antMatchers("/api/auth/**")
                 .permitAll()
-                .antMatchers(HttpMethod.GET, "/api/subreddit")
-                .permitAll()
-                .antMatchers("/v2/api-docs",
-                        "/configuration/ui",
-                        "/swagger-resources/**",
-                        "/configuration/security",
-                        "/swagger-ui.html",
-                        "/webjars/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated();
+                .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**")
+                .permitAll().anyRequest().authenticated();
 
+    }
+
+    @Override
+    public void configure(WebSecurity web)  {
+        web.ignoring().antMatchers("/v3/api-docs",
+                "/swagger-ui.html",
+                "/swagger-ui/**");
     }
 
 
     @Bean
-    PasswordEncoder passwordEncoder(){
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
